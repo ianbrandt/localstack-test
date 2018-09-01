@@ -37,7 +37,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.ianbrandt</groupId>
+			<groupId>com.ianbrandt.test</groupId>
 			<artifactId>localstack-test-parameters</artifactId>
 			<version>${project.version}</version>
 		</dependency>

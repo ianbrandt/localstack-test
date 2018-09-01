@@ -1,4 +1,4 @@
-package com.ianbrandt.localstack.test;
+package com.ianbrandt.test.localstack;
 
 public class SameModuleInput {
 	private String testProperty;

@@ -1,6 +1,7 @@
-package com.ianbrandt.localstack.test;
+package com.ianbrandt.test.localstack;
 
 public class OtherModuleInput {
+
 	private String otherTestProperty;
 
 	public String getOtherTestProperty() {

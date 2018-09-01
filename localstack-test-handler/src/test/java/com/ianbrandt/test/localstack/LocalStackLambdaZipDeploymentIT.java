@@ -1,4 +1,4 @@
-package com.ianbrandt.localstack.test;
+package com.ianbrandt.test.localstack;
 
 import cloud.localstack.DockerTestUtils;
 import cloud.localstack.docker.LocalstackDockerExtension;

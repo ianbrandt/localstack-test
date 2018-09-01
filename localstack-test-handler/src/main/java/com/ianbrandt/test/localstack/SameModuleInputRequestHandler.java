@@ -1,4 +1,4 @@
-package com.ianbrandt.localstack.test;
+package com.ianbrandt.test.localstack;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
