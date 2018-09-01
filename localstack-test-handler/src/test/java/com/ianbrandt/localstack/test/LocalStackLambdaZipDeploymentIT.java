@@ -4,7 +4,11 @@ import cloud.localstack.DockerTestUtils;
 import cloud.localstack.docker.LocalstackDockerExtension;
 import cloud.localstack.docker.annotation.LocalstackDockerProperties;
 import com.amazonaws.services.lambda.AWSLambda;
-import com.amazonaws.services.lambda.model.*;
+import com.amazonaws.services.lambda.model.CreateFunctionRequest;
+import com.amazonaws.services.lambda.model.CreateFunctionResult;
+import com.amazonaws.services.lambda.model.FunctionCode;
+import com.amazonaws.services.lambda.model.InvokeRequest;
+import com.amazonaws.services.lambda.model.InvokeResult;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.Bucket;
@@ -12,6 +16,7 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.ArchivePath;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -35,13 +40,14 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 @TestInstance(PER_CLASS)
 @ExtendWith(LocalstackDockerExtension.class)
 @LocalstackDockerProperties(randomizePorts = true, services = {"s3", "lambda"})
-class SameModuleInputRequestHandlerIT {
+class LocalStackLambdaZipDeploymentIT {
+
+	private static final int HTTP_OK = 200;
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
-	private AWSLambda awsLambda;
-
 	private AmazonS3 amazonS3;
+	private AWSLambda awsLambda;
 
 	@BeforeAll
 	void setUp() {
@@ -61,7 +67,6 @@ class SameModuleInputRequestHandlerIT {
 		// Create Lambda archive
 		final Archive lambdaZip = ShrinkWrap.create(GenericArchive.class);
 		lambdaZip.as(JavaArchive.class).addClasses(handlerClass, SameModuleInput.class);
-
 		System.out.println(lambdaZip.toString(true));
 
 		// Create request object
@@ -72,7 +77,7 @@ class SameModuleInputRequestHandlerIT {
 		final InvokeResult result = invokeLambda(lambdaZip, sameModuleInput, functionName, handlerClassName);
 
 		// Assert post-conditions
-		assertThat(result.getStatusCode()).isEqualTo(200);
+		assertThat(result.getStatusCode()).isEqualTo(HTTP_OK);
 	}
 
 	@Test
@@ -86,15 +91,16 @@ class SameModuleInputRequestHandlerIT {
 		// Create Lambda archive
 		final GenericArchive lambdaZip = ShrinkWrap.create(GenericArchive.class);
 		lambdaZip.as(JavaArchive.class).addClasses(handlerClass);
-
+		final ArchivePath archiveLibraryPath = ArchivePaths.create("/lib");
 		Maven.resolver()
 			.loadPomFromFile("pom.xml")
 			.importCompileAndRuntimeDependencies()
 			.resolve()
 			.withTransitivity()
 			.asList(JavaArchive.class)
-			.forEach(javaArchive -> lambdaZip.add(javaArchive, ArchivePaths.create("/lib"), ZipExporter.class));
-
+			.forEach(javaArchive -> {
+				lambdaZip.add(javaArchive, archiveLibraryPath, ZipExporter.class);
+			});
 		System.out.println(lambdaZip.toString(true));
 
 		// Create request object
@@ -105,7 +111,7 @@ class SameModuleInputRequestHandlerIT {
 		final InvokeResult result = invokeLambda(lambdaZip, otherModuleInput, functionName, handlerClassName);
 
 		// Assert post-conditions
-		assertThat(result.getStatusCode()).isEqualTo(200);
+		assertThat(result.getStatusCode()).isEqualTo(HTTP_OK);
 	}
 
 	private InvokeResult invokeLambda(final Archive lambdaArchive, final Object requestObject,

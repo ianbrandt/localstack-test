@@ -15,6 +15,7 @@
     <JavaCodeStyleSettings>
       <option name="GENERATE_FINAL_LOCALS" value="true" />
       <option name="GENERATE_FINAL_PARAMETERS" value="true" />
+      <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="99" />
     </JavaCodeStyleSettings>
     <XML>
       <option name="XML_KEEP_BLANK_LINES" value="1" />
