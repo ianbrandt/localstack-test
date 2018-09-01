@@ -62,7 +62,7 @@ class LocalStackLambdaZipDeploymentIT {
 		// RequestHandler under test
 		final Class<? extends RequestHandler> handlerClass = SameModuleInputRequestHandler.class;
 		final String handlerClassName = handlerClass.getCanonicalName();
-		final String functionName = handlerClass.getSimpleName();
+		final String lambdaFunctionName = handlerClass.getSimpleName();
 
 		// Create Lambda archive
 		final Archive lambdaZip = ShrinkWrap.create(GenericArchive.class);
@@ -74,7 +74,7 @@ class LocalStackLambdaZipDeploymentIT {
 		sameModuleInput.setTestProperty("Testing");
 
 		// Invoke Lambda
-		final InvokeResult result = invokeLambda(lambdaZip, sameModuleInput, functionName, handlerClassName);
+		final InvokeResult result = invokeLambda(lambdaZip, sameModuleInput, lambdaFunctionName, handlerClassName);
 
 		// Assert post-conditions
 		assertThat(result.getStatusCode()).isEqualTo(HTTP_OK);
@@ -86,7 +86,7 @@ class LocalStackLambdaZipDeploymentIT {
 		// RequestHandler under test
 		final Class<? extends RequestHandler> handlerClass = OtherModuleInputRequestHandler.class;
 		final String handlerClassName = handlerClass.getCanonicalName();
-		final String functionName = handlerClass.getSimpleName();
+		final String lambdaFunctionName = handlerClass.getSimpleName();
 
 		// Create Lambda archive
 		final GenericArchive lambdaZip = ShrinkWrap.create(GenericArchive.class);
@@ -108,14 +108,14 @@ class LocalStackLambdaZipDeploymentIT {
 		otherModuleInput.setOtherTestProperty("Testing");
 
 		// Invoke Lambda
-		final InvokeResult result = invokeLambda(lambdaZip, otherModuleInput, functionName, handlerClassName);
+		final InvokeResult result = invokeLambda(lambdaZip, otherModuleInput, lambdaFunctionName, handlerClassName);
 
 		// Assert post-conditions
 		assertThat(result.getStatusCode()).isEqualTo(HTTP_OK);
 	}
 
 	private InvokeResult invokeLambda(final Archive lambdaArchive, final Object requestObject,
-		final String functionName, final String handlerClassName) throws IOException {
+		final String lambdaFunctionName, final String handlerClassName) throws IOException {
 
 		// Create temp file for archive
 		final File tempLambdaZipFile = writeArchiveAsTempFile(lambdaArchive, "lambda-", ".zip");
@@ -132,11 +132,11 @@ class LocalStackLambdaZipDeploymentIT {
 
 		// Create Lambda Function
 		final CreateFunctionResult createFunctionResult = createLambdaFunction(bucketName, lambdaZipFileName,
-			functionName, handlerClassName);
+			lambdaFunctionName, handlerClassName);
 		assertThat(createFunctionResult.getFunctionArn()).isNotNull();
 
 		// Create Lambda invocation request
-		final InvokeRequest request = createLambdaInvokeRequest(requestObject, functionName);
+		final InvokeRequest request = createLambdaInvokeRequest(requestObject, lambdaFunctionName);
 
 		// Invoke Lambda
 		return awsLambda.invoke(request);
@@ -168,14 +168,14 @@ class LocalStackLambdaZipDeploymentIT {
 	}
 
 	private CreateFunctionResult createLambdaFunction(final String bucketName, final String lambdaZipFileName,
-		final String functionName, final String handlerClassName) {
+		final String lambdaFunctionName, final String handlerClassName) {
 
 		final FunctionCode functionCode = new FunctionCode()
 			.withS3Bucket(bucketName)
 			.withS3Key(lambdaZipFileName);
 
 		final CreateFunctionRequest createFunctionRequest = new CreateFunctionRequest()
-			.withFunctionName(functionName)
+			.withFunctionName(lambdaFunctionName)
 			.withRuntime(Java8)
 			.withHandler(handlerClassName)
 			.withCode(functionCode)
@@ -187,13 +187,13 @@ class LocalStackLambdaZipDeploymentIT {
 		return awsLambda.createFunction(createFunctionRequest);
 	}
 
-	private InvokeRequest createLambdaInvokeRequest(final Object eventRequest, final String functionName)
+	private InvokeRequest createLambdaInvokeRequest(final Object eventRequest, final String lambdaFunctionName)
 		throws JsonProcessingException {
 
 		final String eventRequestJson = objectMapper.writeValueAsString(eventRequest);
 
 		return new InvokeRequest()
-			.withFunctionName(functionName)
+			.withFunctionName(lambdaFunctionName)
 			.withPayload(eventRequestJson);
 	}
 }
