@@ -8,6 +8,6 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>localstack-test-parameters</artifactId>
+	<artifactId>localstack-test-common</artifactId>
 
 </project>
