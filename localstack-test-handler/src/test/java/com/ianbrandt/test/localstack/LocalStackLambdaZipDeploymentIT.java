@@ -98,9 +98,7 @@ class LocalStackLambdaZipDeploymentIT {
 			.resolve()
 			.withTransitivity()
 			.asList(JavaArchive.class)
-			.forEach(javaArchive -> {
-				lambdaZip.add(javaArchive, archiveLibraryPath, ZipExporter.class);
-			});
+			.forEach(javaArchive -> lambdaZip.add(javaArchive, archiveLibraryPath, ZipExporter.class));
 		System.out.println(lambdaZip.toString(true));
 
 		// Create request object
