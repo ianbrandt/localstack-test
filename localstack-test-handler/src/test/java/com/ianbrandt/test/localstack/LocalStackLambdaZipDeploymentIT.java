@@ -65,8 +65,8 @@ class LocalStackLambdaZipDeploymentIT {
 		final String lambdaFunctionName = handlerClass.getSimpleName();
 
 		// Create Lambda archive
-		final Archive lambdaZip = ShrinkWrap.create(GenericArchive.class);
-		lambdaZip.as(JavaArchive.class).addClasses(handlerClass, SameModuleInput.class);
+		final JavaArchive lambdaZip = ShrinkWrap.create(JavaArchive.class);
+		lambdaZip.addClasses(handlerClass, SameModuleInput.class);
 		System.out.println(lambdaZip.toString(true));
 
 		// Create request object
@@ -89,8 +89,8 @@ class LocalStackLambdaZipDeploymentIT {
 		final String lambdaFunctionName = handlerClass.getSimpleName();
 
 		// Create Lambda archive
-		final GenericArchive lambdaZip = ShrinkWrap.create(GenericArchive.class);
-		lambdaZip.as(JavaArchive.class).addClasses(handlerClass);
+		final JavaArchive lambdaZip = ShrinkWrap.create(JavaArchive.class);
+		lambdaZip.addClasses(handlerClass);
 		final ArchivePath archiveLibraryPath = ArchivePaths.create("/lib");
 		Maven.resolver()
 			.loadPomFromFile("pom.xml")
